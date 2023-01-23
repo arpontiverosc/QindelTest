@@ -28,7 +28,7 @@ public class PricesController {
             @RequestParam(name="productId",required=false ) Long productId,
             @RequestParam(name="brandId",required=false ) Long brandId){
 
-       List<PriceDto> prices = pricesService.findByFilters(priceDate, productId, brandId);
+        List<PriceDto> prices = pricesService.findByFilters(priceDate, productId, brandId);
 
         return new ResponseEntity<>(prices, HttpStatus.OK);
 

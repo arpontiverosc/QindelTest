@@ -13,36 +13,44 @@ import java.util.Objects;
 @Component
 public class PricesSpecification {
 
+    private static final String PRODUCT_ID = "productId";
+    private static final String BRAND_ID = "brandId";
+    private static final String END_DATE ="endDate";
+    private static final String START_DATE = "startDate";
+    private static final String PRIORITY = "priority";
+
     public Specification<Price> getPrices(LocalDateTime priceDate, Long productId, Long brand) {
+
         return (root, query, criteriaBuilder) -> {
 
             List<Predicate> predicates = new ArrayList<>();
 
             if(Objects.nonNull(productId)){
-                predicates.add(criteriaBuilder.equal(root.get("productId"), productId));
+                predicates.add(criteriaBuilder.equal(root.get(PRODUCT_ID), productId));
             }
 
             if(Objects.nonNull(brand)){
-                predicates.add(criteriaBuilder.equal(root.get("brandId"), brand));
+                predicates.add(criteriaBuilder.equal(root.get(BRAND_ID), brand));
             }
 
             if(Objects.nonNull(priceDate)){
 
-               Subquery<Long> subQuery = query.subquery(Long.class);
-               Root<Price> subRoot = subQuery.from(Price.class);
+               Subquery<Long> subQueryMaxPriority = query.subquery(Long.class);
+               Root<Price> subRoot = subQueryMaxPriority.from(Price.class);
 
-               Predicate endDatePredicateSub =  criteriaBuilder.greaterThan(subRoot.get("endDate"),priceDate);
-               Predicate startDatePredicateSub =  criteriaBuilder.lessThan(subRoot.get("startDate"),priceDate);
-               Predicate productPredicateSub =  criteriaBuilder.equal(subRoot.get("productId"), productId);
-               Predicate brandPredicateSub =  criteriaBuilder.equal(subRoot.get("brandId"), brand);
-               Expression<Long> maxPriority = criteriaBuilder.max(subRoot.get("priority"));
+               Predicate endDatePredicateSub =  criteriaBuilder.greaterThan(subRoot.get(END_DATE),priceDate);
+               Predicate startDatePredicateSub =  criteriaBuilder.lessThan(subRoot.get(START_DATE),priceDate);
+               Predicate productPredicateSub =  criteriaBuilder.equal(subRoot.get(PRODUCT_ID), productId);
+               Predicate brandPredicateSub =  criteriaBuilder.equal(subRoot.get(BRAND_ID), brand);
+               Expression<Long> maxPriority = criteriaBuilder.max(subRoot.get(PRIORITY));
 
-               subQuery.select(maxPriority).where(startDatePredicateSub, endDatePredicateSub, productPredicateSub, brandPredicateSub);
+               subQueryMaxPriority.select(maxPriority).where(startDatePredicateSub, endDatePredicateSub, productPredicateSub, brandPredicateSub);
 
-               predicates.add(criteriaBuilder.equal(root.get("priority"), subQuery));
+               predicates.add(criteriaBuilder.equal(root.get(PRIORITY), subQueryMaxPriority));
 
-               Predicate endDatePredicate =  criteriaBuilder.greaterThan(root.get("endDate"),priceDate);
-               Predicate startDatePredicate =  criteriaBuilder.lessThan(root.get("startDate"),priceDate);
+
+               Predicate endDatePredicate =  criteriaBuilder.greaterThan(root.get(END_DATE),priceDate);
+               Predicate startDatePredicate =  criteriaBuilder.lessThan(root.get(START_DATE),priceDate);
 
                predicates.add(endDatePredicate);
                predicates.add(startDatePredicate);
