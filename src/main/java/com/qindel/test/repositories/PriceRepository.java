@@ -7,10 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PriceRepository extends JpaRepository<Price, Long>, JpaSpecificationExecutor<Price> {
-
-    //https://www.baeldung.com/rest-api-search-language-spring-data-specifications
-
-    //https://www.youtube.com/watch?v=mr0ZB6QDz00
-
-
 }
